@@ -8,8 +8,6 @@
   const loginForm = document.getElementById("login-form");
   const loginButton = document.getElementById("login-button");
   const gateAlert = document.getElementById("gate-alert");
-  const topUser = document.getElementById("top-user");
-  const topName = document.getElementById("top-name");
   const logoutButton = document.getElementById("logout");
   const whoName = document.getElementById("who-name");
   const whoEmail = document.getElementById("who-email");
@@ -18,11 +16,14 @@
   const typeHint = document.getElementById("type-hint");
   const typeError = document.getElementById("type-error");
   const bodyInput = document.getElementById("body");
+  const bodyLabel = document.getElementById("body-label");
+  const editor = document.getElementById("editor");
+  const toolbar = document.getElementById("toolbar");
   const bodyError = document.getElementById("body-error");
   const formAlert = document.getElementById("form-alert");
   const form = document.getElementById("application-form");
-  const composer = document.getElementById("composer");
   const sendButton = document.getElementById("send-button");
+  const cancelButton = document.getElementById("cancel");
   const simulate = document.getElementById("simulate");
   const success = document.getElementById("success");
   const successTitle = document.getElementById("success-title");
@@ -51,6 +52,75 @@
       input.setAttribute("aria-invalid", "true");
     } else {
       input.removeAttribute("aria-invalid");
+    }
+    if (input === bodyInput) {
+      editor.classList.toggle("is-invalid", Boolean(message));
+    }
+  }
+
+  function plainText(root) {
+    const clone = root.cloneNode(true);
+    clone.querySelectorAll("script, style").forEach(function (node) {
+      node.remove();
+    });
+    clone.querySelectorAll("ol, ul").forEach(function (list) {
+      const ordered = list.tagName === "OL";
+      if (list.previousSibling) {
+        list.parentNode.insertBefore(document.createTextNode("\n"), list);
+      }
+      Array.from(list.children).forEach(function (item, index) {
+        if (item.tagName !== "LI") {
+          return;
+        }
+        const prefix = ordered ? (index + 1) + ". " : "• ";
+        item.insertBefore(document.createTextNode(prefix), item.firstChild);
+      });
+    });
+    clone.querySelectorAll("br").forEach(function (br) {
+      br.replaceWith("\n");
+    });
+    clone.querySelectorAll("p, div, li, h1, h2, h3, tr").forEach(function (block) {
+      block.appendChild(document.createTextNode("\n"));
+    });
+    return (clone.textContent || "")
+      .replace(/\u00a0/g, " ")
+      .replace(/[ \t]+\n/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .replace(/^\n+|\n+$/g, "");
+  }
+
+  function applicationBody() {
+    return plainText(bodyInput);
+  }
+
+  function clearEditor() {
+    bodyInput.innerHTML = "";
+    bodyInput.removeAttribute("aria-invalid");
+    editor.classList.remove("is-invalid");
+  }
+
+  function syncTypePlaceholder() {
+    typeSelect.classList.toggle("is-empty", typeSelect.value === "");
+  }
+
+  function syncToolbar() {
+    const buttons = toolbar.querySelectorAll("button[data-cmd]");
+    buttons.forEach(function (button) {
+      let pressed = false;
+      try {
+        pressed = document.queryCommandState(button.getAttribute("data-cmd")) === true;
+      } catch (error) {
+        pressed = false;
+      }
+      button.setAttribute("aria-pressed", pressed ? "true" : "false");
+    });
+  }
+
+  function focusField(input) {
+    try {
+      input.focus({ focusVisible: true });
+    } catch (error) {
+      input.focus();
     }
   }
 
@@ -84,7 +154,6 @@
     show(boot, false);
     show(gate, true);
     show(app, false);
-    show(topUser, false);
     clearOutcome();
   }
 
@@ -92,9 +161,7 @@
     show(boot, false);
     show(gate, false);
     show(app, true);
-    show(composer, true);
-    show(topUser, true);
-    topName.textContent = employee.name;
+    show(form, true);
     whoName.textContent = employee.name;
     whoEmail.textContent = employee.email;
     clearOutcome();
@@ -105,13 +172,14 @@
     meta = data;
     typeHint.textContent = data.typesNote;
     const current = typeSelect.value;
-    typeSelect.replaceChildren(new Option("Vali liik…", ""));
+    typeSelect.replaceChildren(new Option("(tühi)", ""));
     data.types.forEach(function (type) {
       typeSelect.appendChild(new Option(type, type));
     });
     if ([...typeSelect.options].some(function (option) { return option.value === current; })) {
       typeSelect.value = current;
     }
+    syncTypePlaceholder();
     if (data.smtpConfigured) {
       deliveryNote.textContent =
         "Saatmisviis: e-post aadressile " + data.accountingEmail + ". " + data.accountingEmailNote;
@@ -140,6 +208,7 @@
       const name = document.createElement("strong");
       name.textContent = employee.name;
       const email = document.createElement("span");
+      email.className = "who";
       email.textContent = employee.email;
       text.append(name, email);
       label.append(input, text);
@@ -177,7 +246,7 @@
       return;
     }
     setAlert(formAlert, "");
-    show(composer, false);
+    show(form, false);
     successTitle.textContent = payload.title || "";
     successMessage.textContent = payload.message || "";
     successFields.replaceChildren(
@@ -206,11 +275,11 @@
     setFieldError(bodyInput, bodyError, fields.body || "");
     setAlert(formAlert, (payload && payload.message) || fallback);
     if (fields.type) {
-      typeSelect.focus({ focusVisible: true });
+      focusField(typeSelect);
     } else if (fields.body) {
-      bodyInput.focus({ focusVisible: true });
+      focusField(bodyInput);
     } else {
-      formAlert.focus({ focusVisible: true });
+      focusField(formAlert);
     }
   }
 
@@ -261,6 +330,60 @@
     });
   }
 
+  function resetComposer() {
+    form.reset();
+    clearEditor();
+    simulate.checked = false;
+    syncTypePlaceholder();
+    syncToolbar();
+  }
+
+  bodyLabel.addEventListener("click", function () {
+    bodyInput.focus();
+  });
+
+  toolbar.addEventListener("mousedown", function (event) {
+    if (event.target.closest("button")) {
+      event.preventDefault();
+    }
+  });
+
+  toolbar.addEventListener("click", function (event) {
+    const button = event.target.closest("button");
+    if (!button || !toolbar.contains(button)) {
+      return;
+    }
+    const command = button.getAttribute("data-cmd");
+    if (!command) {
+      return;
+    }
+    bodyInput.focus();
+    document.execCommand(command, false, null);
+    syncToolbar();
+  });
+
+  document.addEventListener("selectionchange", function () {
+    const active = document.activeElement;
+    if (active === bodyInput || toolbar.contains(active)) {
+      syncToolbar();
+    }
+  });
+
+  bodyInput.addEventListener("paste", function (event) {
+    const clipboard = event.clipboardData;
+    if (!clipboard) {
+      return;
+    }
+    const text = clipboard.getData("text/plain");
+    if (text == null) {
+      return;
+    }
+    event.preventDefault();
+    document.execCommand("insertText", false, text);
+  });
+
+  typeSelect.addEventListener("change", syncTypePlaceholder);
+
   loginForm.addEventListener("submit", async function (event) {
     event.preventDefault();
     setAlert(gateAlert, "");
@@ -294,15 +417,14 @@
     } catch (error) {
       /* Värav kuvatakse ikkagi. */
     }
-    form.reset();
-    simulate.checked = false;
+    resetComposer();
     showGate();
   });
 
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
     clearOutcome();
-    show(composer, true);
+    show(form, true);
     sendButton.disabled = true;
     sendButton.textContent = "Saadan…";
     try {
@@ -311,7 +433,7 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: typeSelect.value,
-          body: bodyInput.value,
+          body: applicationBody(),
           simulateFailure: simulate.checked === true,
         }),
       });
@@ -328,12 +450,23 @@
     }
   });
 
+  cancelButton.addEventListener("click", function () {
+    typeSelect.value = "";
+    clearEditor();
+    syncTypePlaceholder();
+    syncToolbar();
+    setAlert(formAlert, "");
+    setFieldError(typeSelect, typeError, "");
+    setFieldError(bodyInput, bodyError, "");
+    show(form, true);
+    focusField(typeSelect);
+  });
+
   another.addEventListener("click", function () {
-    form.reset();
-    simulate.checked = false;
+    resetComposer();
     clearOutcome();
-    show(composer, true);
-    typeSelect.focus();
+    show(form, true);
+    focusField(typeSelect);
   });
 
   refreshInbox.addEventListener("click", function () {

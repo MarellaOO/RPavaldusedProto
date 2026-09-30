@@ -9,118 +9,115 @@
 </head>
 <body>
   <a class="skip" href="#main">Sisu juurde</a>
-  <header class="top">
-    <div class="top-inner">
-      <div class="brand">
-        <span class="mark">ERR</span>
-        <span class="brand-text">Avaldused</span>
-      </div>
-      <div class="top-user" id="top-user" hidden>
-        <span id="top-name"></span>
-        <button type="button" class="btn btn-quiet" id="logout">Välju</button>
-      </div>
-    </div>
-  </header>
-
   <main id="main">
-    <p class="kicker">Siseveeb · prototüüp</p>
-    <h1>Raamatupidamise avaldus</h1>
-    <p class="lead">
-      Töötaja saadab raamatupidamisele vabas vormis avalduse. Vorm on neile, kellel ei ole enam
-      Web Desktopi litsentsi ja kes ei saa avaldust sealt saata.
-    </p>
-    <p class="scope">
-      Prototüüp ei hoia avaldusi andmebaasis, ei kinnita neid juhi juures ega näita staatust.
-      Vajadus on üks: edastada kiri raamatupidamisele. Uut isikuandmete registrit ei looda.
-    </p>
-
     <p id="boot" class="boot" role="status">Laadin…</p>
 
-    <section id="gate" class="card" hidden>
-      <h2>ERR identiteet (prototüüp)</h2>
-      <p>
-        Päris ERR ühekordne sisselogimine ei ole siin ühendatud. Vali näidistöötaja.
-        Pärast sisenemist tulevad nimi ja e-post identiteedist. Vormil ei saa neid käsitsi kirjutada.
-      </p>
-      <p class="hint">Mari, Kadri ja Andres on väljamõeldud näited, mitte ERR personali kataloog.</p>
-      <div id="gate-alert" class="banner banner-error" role="alert" hidden></div>
-      <form id="login-form">
-        <fieldset>
-          <legend>Näidistöötaja</legend>
-          <div id="people" class="people"></div>
-        </fieldset>
-        <button type="submit" class="btn" id="login-button">Sisene prototüüpi</button>
-      </form>
+    <section id="gate" hidden>
+      <div class="layout">
+        <div class="form-col">
+          <h1>Raamatupidamise avaldus</h1>
+          <p class="lede">Vali näidistöötaja. Päris ERR sisselogimist ei ole ühendatud.</p>
+          <div id="gate-alert" class="banner banner-error" role="alert" hidden></div>
+          <form id="login-form">
+            <fieldset>
+              <legend>Näidistöötaja <span class="req" aria-hidden="true">*</span><span class="sr">kohustuslik</span></legend>
+              <div id="people" class="people"></div>
+            </fieldset>
+            <p class="hint">Mari, Kadri ja Andres on väljamõeldud näited, mitte ERR personali kataloog.</p>
+            <button type="submit" class="btn btn-primary" id="login-button">Sisene</button>
+          </form>
+        </div>
+        <aside class="help" aria-labelledby="gate-help-title">
+          <h2 id="gate-help-title">Avalduse kirjeldus</h2>
+          <p>Töötaja saadab selle vormiga raamatupidamisele vabas vormis avalduse, kui Web Desktopi litsentsi enam ei ole ja avaldust ei saa sealt saata.</p>
+          <p>Nimi ja e-post tulevad identiteedist. Vormil ei saa neid käsitsi kirjutada.</p>
+          <p>Avalduse liikide nimekirja peab raamatupidamine.</p>
+        </aside>
+      </div>
     </section>
 
     <section id="app" hidden>
-      <section class="card" id="composer">
-        <h2>Uus avaldus</h2>
-        <div class="identity" aria-labelledby="identity-title">
-          <h3 id="identity-title">Saatja</h3>
-          <dl>
-            <div>
-              <dt>Nimi</dt>
-              <dd id="who-name"></dd>
+      <div class="layout">
+        <div class="form-col">
+          <h1>Raamatupidamise avaldus</h1>
+          <div class="identity">
+            <span><span class="id-k">Nimi</span> <strong id="who-name"></strong></span>
+            <span><span class="id-k">E-post</span> <strong id="who-email"></strong></span>
+            <button type="button" class="btn btn-quiet" id="logout">Välju</button>
+          </div>
+
+          <form id="application-form" autocomplete="off">
+            <div id="form-alert" class="banner banner-error" role="alert" tabindex="-1" hidden></div>
+
+            <div class="field">
+              <label for="type">Avalduse liik <span class="req" aria-hidden="true">*</span><span class="sr">kohustuslik</span></label>
+              <select id="type" name="type" aria-required="true" aria-describedby="type-hint type-error">
+                <option value="">(tühi)</option>
+              </select>
+              <p class="hint" id="type-hint"></p>
+              <p class="field-error" id="type-error"></p>
             </div>
-            <div>
-              <dt>E-post</dt>
-              <dd id="who-email"></dd>
+
+            <div class="field">
+              <label id="body-label">Avalduse tekst <span class="req" aria-hidden="true">*</span><span class="sr">kohustuslik</span></label>
+              <div class="editor" id="editor">
+                <div class="toolbar" role="toolbar" aria-label="Teksti vorming" id="toolbar">
+                  <button type="button" data-cmd="bold" aria-label="Rasvane" aria-pressed="false"><strong>B</strong></button>
+                  <button type="button" data-cmd="italic" aria-label="Kaldkiri" aria-pressed="false"><em>I</em></button>
+                  <button type="button" data-cmd="underline" aria-label="Allakriipsutus" aria-pressed="false"><span class="u">U</span></button>
+                  <button type="button" data-cmd="insertUnorderedList" aria-label="Täpploend" aria-pressed="false">
+                    <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false">
+                      <circle cx="2.4" cy="3.5" r="1.15" fill="currentColor"></circle>
+                      <circle cx="2.4" cy="8" r="1.15" fill="currentColor"></circle>
+                      <circle cx="2.4" cy="12.5" r="1.15" fill="currentColor"></circle>
+                      <path d="M5.5 3.5h8.2M5.5 8h8.2M5.5 12.5h8.2" stroke="currentColor" stroke-width="1.3"></path>
+                    </svg>
+                  </button>
+                </div>
+                <div id="body" class="editor-surface" contenteditable="true" role="textbox" aria-multiline="true" aria-required="true" aria-labelledby="body-label" aria-describedby="body-hint body-error"></div>
+              </div>
+              <p class="hint" id="body-hint">Kirjuta, mida raamatupidamine peaks tegema. Kuni 8000 tähemärki. Saadetakse lihttekstina.</p>
+              <p class="field-error" id="body-error"></p>
             </div>
-          </dl>
-          <p class="hint">Loetav. Andmed tulevad prototüübi identiteedist, mitte vormi väljadelt.</p>
+
+            <div class="sim">
+              <p class="sim-kicker">Ainult prototüübis</p>
+              <label class="check" for="simulate">
+                <input type="checkbox" id="simulate" name="simulate" aria-describedby="simulate-hint">
+                <span>Simuleeri saatmise viga</span>
+              </label>
+              <p class="hint" id="simulate-hint">Server keeldub sellest saatmisest ja kirjutab vea logisse. Õnnestumise teadet ei kuvata.</p>
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="btn btn-primary" id="send-button">Saada avaldus</button>
+              <button type="button" class="btn btn-secondary" id="cancel">Tühista</button>
+            </div>
+          </form>
+
+          <section id="success" class="outcome" role="status" aria-live="polite" tabindex="-1" hidden>
+            <h2 id="success-title"></h2>
+            <p id="success-message"></p>
+            <h3>Kiri, mille raamatupidamine saaks</h3>
+            <dl id="success-fields" class="mail"></dl>
+            <h3>Täpne kirja sisu</h3>
+            <pre id="success-text" class="letter"></pre>
+            <button type="button" class="btn btn-secondary" id="another">Koosta uus avaldus</button>
+          </section>
         </div>
 
-        <p class="delivery" id="delivery-note"></p>
+        <aside class="help" aria-labelledby="help-title">
+          <h2 id="help-title">Avalduse kirjeldus</h2>
+          <p>Töötaja saadab selle vormiga raamatupidamisele vabas vormis avalduse, kui Web Desktopi litsentsi enam ei ole ja avaldust ei saa sealt saata.</p>
+          <p>Nimi ja e-post tulevad identiteedist. Vormil ei saa neid käsitsi kirjutada.</p>
+          <p>Avalduse liikide nimekirja peab raamatupidamine. Siin on esialgne loetelu, sealhulgas „Muu“.</p>
+          <p id="delivery-note"></p>
+        </aside>
+      </div>
 
-        <div id="form-alert" class="banner banner-error" role="alert" tabindex="-1" hidden></div>
-
-        <form id="application-form" autocomplete="off">
-          <div class="field">
-            <label for="type">Avalduse liik (kohustuslik)</label>
-            <select id="type" name="type" aria-required="true" aria-describedby="type-hint type-error">
-              <option value="">Vali liik…</option>
-            </select>
-            <p class="hint" id="type-hint"></p>
-            <p class="field-error" id="type-error"></p>
-          </div>
-
-          <div class="field">
-            <label for="body">Avalduse tekst (kohustuslik)</label>
-            <textarea id="body" name="body" aria-required="true" aria-describedby="body-hint body-error" maxlength="8000"></textarea>
-            <p class="hint" id="body-hint">Kirjuta, mida raamatupidamine peaks tegema. Kuni 8000 tähemärki.</p>
-            <p class="field-error" id="body-error"></p>
-          </div>
-
-          <div class="sim">
-            <p class="eyebrow">Ainult prototüübis</p>
-            <label class="check" for="simulate">
-              <input type="checkbox" id="simulate" name="simulate" aria-describedby="simulate-hint">
-              <span>Simuleeri saatmise viga</span>
-            </label>
-            <p class="hint" id="simulate-hint">
-              Server keeldub sellest saatmisest ja kirjutab vea logisse. Õnnestumise teadet ei kuvata.
-            </p>
-          </div>
-
-          <button type="submit" class="btn" id="send-button">Saada avaldus</button>
-        </form>
-      </section>
-
-      <section id="success" class="card success" role="status" aria-live="polite" tabindex="-1" hidden>
-        <h2 id="success-title"></h2>
-        <p id="success-message"></p>
-        <h3>Kiri, mille raamatupidamine saaks</h3>
-        <dl id="success-fields" class="mail"></dl>
-        <h3>Täpne kirja sisu</h3>
-        <pre id="success-text" class="letter"></pre>
-        <button type="button" class="btn btn-secondary" id="another">Koosta uus avaldus</button>
-      </section>
-
-      <section class="card inbox" aria-labelledby="inbox-title">
-        <p class="eyebrow">Ainult prototüübis · ei ole tööjärjekord</p>
+      <section class="inbox" aria-labelledby="inbox-title">
         <h2 id="inbox-title">Raamatupidamise postkast (prototüüp)</h2>
-        <p>
+        <p class="intro">
           Siin on kirjad, mis anti üle selle serveri mällu, kui SMTP ei olnud seadistatud.
           See ei ole töötaja esitamisajalugu ega raamatupidamise menetlus. Kirjed kaovad serveri peatumisel.
           Saatmise tulemus (õnnestus või ebaõnnestus), saatja ja liik kirjutatakse ka faili
