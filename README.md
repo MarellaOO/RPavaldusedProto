@@ -36,6 +36,10 @@ python3 server.py
 
 Avaneb aadressil [http://127.0.0.1:8741/](http://127.0.0.1:8741/).
 
+## Jagatav ülevaatuse koopia
+
+[https://marellaoo.github.io/RPavaldusedProto/](https://marellaoo.github.io/RPavaldusedProto/) on brauseris töötav koopia kaustast `docs/`. See ei saada e-kirja ja raamatupidamine avaldust ei saa. Postkast on ainult selle brauseri vahekaardi `sessionStorage`. Kohalik server jääb eraldi ja kasutab kausta `static/`.
+
 ## Seadistus
 
 | Muutuja | Vaikimisi | Tähendus |
